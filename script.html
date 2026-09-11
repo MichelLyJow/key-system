@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Michel Script Key System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #ffffff;
+            color: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: #ffffff;
+            border: 1px solid #dddddd;
+            border-radius: 12px;
+            padding: 25px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        h1 {
+            color: #000000;
+            font-size: 20px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        p.desc {
+            color: #666666;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .task-btn {
+            background: #f5f5f5;
+            border: 1px solid #cccccc;
+            color: #333333;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.2s;
+        }
+
+        .task-btn:not(:disabled):hover {
+            border-color: #000000;
+            color: #000000;
+        }
+
+        .task-btn:disabled {
+            background: #fafafa;
+            color: #aaaaaa;
+            border-color: #eeeeee;
+            cursor: not-allowed;
+        }
+
+        .task-btn.completed {
+            border-color: #000000;
+            color: #000000;
+            background: #eeeeee;
+        }
+
+        .status-badge {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: #e0e0e0;
+        }
+
+        .btn-generate {
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+        }
+
+        .btn-generate:disabled {
+            background: #dddddd;
+            color: #999999;
+            cursor: not-allowed;
+        }
+
+        .btn-generate:not(:disabled):hover {
+            background: #333333;
+        }
+
+        .key-box {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .key-display {
+            background: #f5f5f5;
+            border: 1px solid #cccccc;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 16px;
+            color: #000000;
+            word-break: break-all;
+            margin-bottom: 12px;
+        }
+
+        .btn-copy {
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+        }
+
+        .btn-copy:hover {
+            background: #333333;
+        }
+
+        .timer-info {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #555555;
+            font-weight: bold;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: #f0f0f0;
+            border: 1px solid #dddddd;
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #888888;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #000000;
+        }
+
+        .tab-btn.active {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .script-display {
+            background: #f5f5f5;
+            border: 1px solid #cccccc;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 11px;
+            color: #222222;
+            word-break: break-all;
+            text-align: left;
+            margin-bottom: 12px;
+            max-height: 140px;
+            overflow-y: auto;
+        }
+
+        .dev-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cccccc;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .dev-input:focus {
+            outline: none;
+            border-color: #000000;
+        }
+
+        .btn-dev-submit {
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn-dev-submit:hover {
+            background: #333333;
+        }
+
+        .dev-error {
+            color: #cc0000;
+            font-size: 12px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .dev-options {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 16px;
+            text-align: left;
+        }
+
+        .dev-options.active {
+            display: flex;
+        }
+
+        .btn-dev-option {
+            background: #f5f5f5;
+            border: 1px solid #cccccc;
+            color: #000000;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .btn-dev-option:hover {
+            border-color: #000000;
+            background: #eeeeee;
+        }
+    </style>
+
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Michel Script Key System</h1>
+
+        <div class="tab-nav">
+            <button class="tab-btn active" id="tabKeyBtn" onclick="switchTab('key')">KEY</button>
+            <button class="tab-btn" id="tabScriptBtn" onclick="switchTab('script')">SCRIPT</button>
+            <button class="tab-btn" id="tabDevBtn" onclick="switchTab('dev')">PREMIUM</button>
+        </div>
+
+        <!-- KEY PANEL -->
+        <div class="tab-panel active" id="panelKey">
+            <p class="desc" id="subTitle">Complete the 4 tasks below to unlock your key!</p>
+
+            <!-- 4 TASK BUTTONS -->
+            <div class="task-list" id="taskList">
+                <button class="task-btn" id="task1" onclick="startTask(1, 10)">
+                    <span>Task 1</span>
+                    <span class="status-badge" id="badge1">CLICK</span>
+                </button>
+
+                <button class="task-btn" id="task2" onclick="startTask(2, 10)" disabled>
+                    <span>Task 2</span>
+                    <span class="status-badge" id="badge2">LOCKED</span>
+                </button>
+
+                <button class="task-btn" id="task3" onclick="startTask(3, 15)" disabled>
+                    <span>Task 3</span>
+                    <span class="status-badge" id="badge3">LOCKED</span>
+                </button>
+
+                <button class="task-btn" id="task4" onclick="startTask(4, 15)" disabled>
+                    <span>Task 4</span>
+                    <span class="status-badge" id="badge4">LOCKED</span>
+                </button>
+            </div>
+
+            <!-- GET KEY BUTTON -->
+            <button class="btn-generate" id="genBtn" onclick="generateKey()" disabled>UNLOCK KEY</button>
+
+            <!-- KEY RESULT -->
+            <div class="key-box" id="keyBox">
+                <div class="key-display" id="keyText">MICHEL-XXXX-XXXX</div>
+                <button class="btn-copy" id="copyBtn" onclick="copyKey()">COPY KEY</button>
+                <div class="timer-info" id="expiryTimer"></div>
+            </div>
+        </div>
+
+        <!-- SCRIPT PANEL -->
+        <div class="tab-panel" id="panelScript">
+            <p class="desc">Copy the script below and run it in your executor.</p>
+            <div class="script-display" id="scriptText">loadstring(game:HttpGet('https://raw.githubusercontent.com/MichelLyJow/MichelScriptv2/refs/heads/main/script.lua'))()</div>
+            <button class="btn-copy" id="copyScriptBtn" onclick="copyScript()">COPY SCRIPT</button>
+        </div>
+
+        <!-- PREMIUM CODE PANEL -->
+        <div class="tab-panel" id="panelDev">
+            <div id="devLocked">
+                <p class="desc">Enter your premium code to unlock premium options. Get a code at devmichelscript.pages.dev.</p>
+                <input type="password" class="dev-input" id="devCodeInput" placeholder="Enter premium code" onkeydown="if(event.key==='Enter') checkDevCode()">
+                <button class="btn-dev-submit" onclick="checkDevCode()">SUBMIT</button>
+                <div class="dev-error" id="devError">Incorrect code. Try again.</div>
+            </div>
+
+            <div id="devUnlocked" style="display:none;">
+                <p class="desc">Premium option unlocked.</p>
+                <div class="dev-options active">
+                    <button class="btn-dev-option" onclick="devUnlockAllTasks()">Force Unlock All Tasks</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const EXPIRE_HOURS = 7;
+        const EXPIRE_TIME_MS = EXPIRE_HOURS * 60 * 60 * 1000;
+
+        // Check key status on page load
+        window.onload = function() {
+            checkExistingKey();
+        };
+
+        function checkExistingKey() {
+            const savedKey = localStorage.getItem('michel_key');
+            const savedTime = localStorage.getItem('michel_key_time');
+
+            if (savedKey && savedTime) {
+                const now = new Date().getTime();
+                const elapsedTime = now - parseInt(savedTime);
+
+                if (elapsedTime < EXPIRE_TIME_MS) {
+                    // Key is still valid (less than 24 hours)
+                    showActiveKey(savedKey, EXPIRE_TIME_MS - elapsedTime);
+                } else {
+                    // Key expired, clear storage
+                    localStorage.removeItem('michel_key');
+                    localStorage.removeItem('michel_key_time');
+                }
+            }
+        }
+
+        function startTask(taskNum, seconds) {
+            const btn = document.getElementById(`task${taskNum}`);
+            const badge = document.getElementById(`badge${taskNum}`);
+
+            btn.disabled = true;
+            let timeLeft = seconds;
+            badge.innerText = `${timeLeft}s`;
+
+            const timer = setInterval(() => {
+                timeLeft--;
+                badge.innerText = `${timeLeft}s`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    badge.innerText = "DONE ✓";
+                    btn.classList.add("completed");
+
+                    if (taskNum < 4) {
+                        const nextBtn = document.getElementById(`task${taskNum + 1}`);
+                        const nextBadge = document.getElementById(`badge${taskNum + 1}`);
+                        nextBtn.disabled = false;
+                        nextBadge.innerText = "CLICK";
+                    } else {
+                        const genBtn = document.getElementById("genBtn");
+                        genBtn.disabled = false;
+                        genBtn.innerText = "GET KEY NOW";
+                    }
+                }
+            }, 1000);
+        }
+
+        function generateKey() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let randomKey = 'MICHEL-';
+            for (let i = 0; i < 8; i++) {
+                randomKey += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+
+            const now = new Date().getTime();
+            localStorage.setItem('michel_key', randomKey);
+            localStorage.setItem('michel_key_time', now);
+
+            showActiveKey(randomKey, EXPIRE_TIME_MS);
+        }
+
+        function showActiveKey(key, remainingTime) {
+            document.getElementById('taskList').style.display = 'none';
+            document.getElementById('genBtn').style.display = 'none';
+            document.getElementById('subTitle').innerText = 'Your Key is Active!';
+
+            document.getElementById('keyText').innerText = key;
+            document.getElementById('keyBox').style.display = 'block';
+
+            startExpiryCountdown(remainingTime);
+        }
+
+        function startExpiryCountdown(duration) {
+            let timerMs = duration;
+            const timerDisplay = document.getElementById('expiryTimer');
+
+            function updateDisplay() {
+                if (timerMs <= 0) {
+                    location.reload();
+                    return;
+                }
+
+                const totalSeconds = Math.floor(timerMs / 1000);
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+
+                timerDisplay.innerText = `Key resets in: ${hours}h ${minutes}m ${seconds}s`;
+                timerMs -= 1000;
+            }
+
+            updateDisplay();
+            setInterval(updateDisplay, 1000);
+        }
+
+        function copyKey() {
+            const keyText = document.getElementById('keyText').innerText;
+            navigator.clipboard.writeText(keyText).then(() => {
+                const copyBtn = document.getElementById('copyBtn');
+                copyBtn.innerText = 'COPIED!';
+                setTimeout(() => {
+                    copyBtn.innerText = 'COPY KEY';
+                }, 2000);
+            });
+        }
+
+        function switchTab(tab) {
+            document.getElementById('panelKey').classList.toggle('active', tab === 'key');
+            document.getElementById('panelScript').classList.toggle('active', tab === 'script');
+            document.getElementById('panelDev').classList.toggle('active', tab === 'dev');
+            document.getElementById('tabKeyBtn').classList.toggle('active', tab === 'key');
+            document.getElementById('tabScriptBtn').classList.toggle('active', tab === 'script');
+            document.getElementById('tabDevBtn').classList.toggle('active', tab === 'dev');
+        }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDPm2MG5omvchIMKmPgschmSSwZ_msvSPg",
+            authDomain: "key-web-61727.firebaseapp.com",
+            databaseURL: "https://key-web-61727-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "key-web-61727",
+            storageBucket: "key-web-61727.firebasestorage.app",
+            messagingSenderId: "158991751626",
+            appId: "1:158991751626:web:605f214e6b5482ca855733"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        function checkDevCode() {
+            const input = document.getElementById('devCodeInput');
+            const error = document.getElementById('devError');
+            const submitBtn = document.querySelector('#devLocked .btn-dev-submit');
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'CHECKING...';
+
+            db.ref('premiumCodes').once('value').then((snapshot) => {
+                let isValid = false;
+                let matchedKey = null;
+
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        if (child.val() === input.value) {
+                            isValid = true;
+                            matchedKey = child.key;
+                        }
+                    });
+                }
+
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'SUBMIT';
+
+                if (isValid) {
+                    // Single-use: remove the code immediately so no one else can use it
+                    db.ref('premiumCodes/' + matchedKey).remove();
+
+                    document.getElementById('devLocked').style.display = 'none';
+                    document.getElementById('devUnlocked').style.display = 'block';
+                    error.style.display = 'none';
+                } else {
+                    error.style.display = 'block';
+                    input.value = '';
+                }
+            }).catch(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'SUBMIT';
+                error.innerText = 'Connection error. Try again.';
+                error.style.display = 'block';
+            });
+        }
+
+        function devUnlockAllTasks() {
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`task${i}`);
+                const badge = document.getElementById(`badge${i}`);
+                btn.disabled = true;
+                btn.classList.add('completed');
+                badge.innerText = 'DONE ✓';
+            }
+            const genBtn = document.getElementById('genBtn');
+            genBtn.disabled = false;
+            genBtn.innerText = 'GET KEY NOW';
+        }
+
+        function copyScript() {
+            const scriptText = document.getElementById('scriptText').innerText;
+            navigator.clipboard.writeText(scriptText).then(() => {
+                const copyBtn = document.getElementById('copyScriptBtn');
+                copyBtn.innerText = 'COPIED!';
+                setTimeout(() => {
+                    copyBtn.innerText = 'COPY SCRIPT';
+                }, 2000);
+            });
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Michel Script Key System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #000000;
+            color: #e6e6e6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: #0d1117;
+            border: 1px solid #202632;
+            border-radius: 14px;
+            padding: 25px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+            text-align: center;
+        }
+
+        h1 {
+            color: #ffffff;
+            font-size: 20px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        p.desc {
+            color: #9aa4b2;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .task-btn {
+            background: #11151c;
+            border: 1px solid #232a35;
+            color: #cbd5e1;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.2s;
+        }
+
+        .task-btn:not(:disabled):hover {
+            border-color: #4f8ef7;
+            color: #ffffff;
+        }
+
+        .task-btn:disabled {
+            background: #0a0d12;
+            color: #4b5563;
+            border-color: #1a1f28;
+            cursor: not-allowed;
+        }
+
+        .task-btn.completed {
+            border-color: #4f8ef7;
+            color: #7db1ff;
+            background: rgba(79, 142, 247, 0.1);
+        }
+
+        .status-badge {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: #1c2330;
+        }
+
+        .btn-generate {
+            background: #4f8ef7;
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 999px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+        }
+
+        .btn-generate:disabled {
+            background: #232a35;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .btn-generate:not(:disabled):hover {
+            background: #6ba1ff;
+        }
+
+        .key-box {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .key-display {
+            background: #11151c;
+            border: 1px solid #232a35;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 16px;
+            color: #ffffff;
+            word-break: break-all;
+            margin-bottom: 12px;
+        }
+
+        .btn-copy {
+            background: #4f8ef7;
+            color: #ffffff;
+            border: none;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 999px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+        }
+
+        .btn-copy:hover {
+            background: #6ba1ff;
+        }
+
+        .timer-info {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #9aa4b2;
+            font-weight: bold;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: #11151c;
+            border: 1px solid #232a35;
+            border-radius: 999px;
+            padding: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #7d8590;
+            padding: 10px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #ffffff;
+        }
+
+        .tab-btn.active {
+            background: #4f8ef7;
+            color: #ffffff;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .script-display {
+            background: #11151c;
+            border: 1px solid #232a35;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 11px;
+            color: #cbd5e1;
+            word-break: break-all;
+            text-align: left;
+            margin-bottom: 12px;
+            max-height: 140px;
+            overflow-y: auto;
+        }
+
+        .dev-options {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 16px;
+            text-align: left;
+        }
+
+        .dev-options.active {
+            display: flex;
+        }
+
+        .btn-dev-option {
+            background: #11151c;
+            border: 1px solid #232a35;
+            color: #ffffff;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .btn-dev-option:hover {
+            border-color: #4f8ef7;
+            background: rgba(79, 142, 247, 0.1);
+        }
+
+        .uid-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .btn-icon-info {
+            flex-shrink: 0;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #4f8ef7;
+            color: #ffffff;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-icon-info:hover {
+            background: #6ba1ff;
+        }
+
+        .uid-hint {
+            font-size: 13px;
+            color: #9aa4b2;
+            text-align: left;
+        }
+
+        .uid-box {
+            background: #11151c;
+            border: 1px solid #232a35;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .uid-value {
+            font-family: monospace;
+            font-size: 12px;
+            color: #ffffff;
+            word-break: break-all;
+            margin-bottom: 10px;
+        }
+
+        .status-pill {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #1c2330;
+            color: #9aa4b2;
+            margin-bottom: 14px;
+        }
+
+        .status-pill.checking {
+            color: #e3b341;
+        }
+    </style>
+
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Michel Script Key System</h1>
+
+        <div class="tab-nav">
+            <button class="tab-btn active" id="tabKeyBtn" onclick="switchTab('key')">KEY</button>
+            <button class="tab-btn" id="tabScriptBtn" onclick="switchTab('script')">SCRIPT</button>
+            <button class="tab-btn" id="tabDevBtn" onclick="switchTab('dev')">PREMIUM</button>
+        </div>
+
+        <!-- KEY PANEL -->
+        <div class="tab-panel active" id="panelKey">
+            <p class="desc" id="subTitle">Complete the 4 tasks below to unlock your key!</p>
+
+            <!-- 4 TASK BUTTONS -->
+            <div class="task-list" id="taskList">
+                <button class="task-btn" id="task1" onclick="startTask(1, 10)">
+                    <span>Task 1</span>
+                    <span class="status-badge" id="badge1">CLICK</span>
+                </button>
+
+                <button class="task-btn" id="task2" onclick="startTask(2, 10)" disabled>
+                    <span>Task 2</span>
+                    <span class="status-badge" id="badge2">LOCKED</span>
+                </button>
+
+                <button class="task-btn" id="task3" onclick="startTask(3, 15)" disabled>
+                    <span>Task 3</span>
+                    <span class="status-badge" id="badge3">LOCKED</span>
+                </button>
+
+                <button class="task-btn" id="task4" onclick="startTask(4, 15)" disabled>
+                    <span>Task 4</span>
+                    <span class="status-badge" id="badge4">LOCKED</span>
+                </button>
+            </div>
+
+            <!-- GET KEY BUTTON -->
+            <button class="btn-generate" id="genBtn" onclick="generateKey()" disabled>UNLOCK KEY</button>
+
+            <!-- KEY RESULT -->
+            <div class="key-box" id="keyBox">
+                <div class="key-display" id="keyText">MICHEL-XXXX-XXXX</div>
+                <button class="btn-copy" id="copyBtn" onclick="copyKey()">COPY KEY</button>
+                <div class="timer-info" id="expiryTimer"></div>
+            </div>
+        </div>
+
+        <!-- SCRIPT PANEL -->
+        <div class="tab-panel" id="panelScript">
+            <p class="desc">Copy the script below and run it in your executor.</p>
+            <div class="script-display" id="scriptText">loadstring(game:HttpGet('https://raw.githubusercontent.com/MichelLyJow/MichelScriptv2/refs/heads/main/script.lua'))()</div>
+            <button class="btn-copy" id="copyScriptBtn" onclick="copyScript()">COPY SCRIPT</button>
+        </div>
+
+        <!-- PREMIUM PANEL -->
+        <div class="tab-panel" id="panelDev">
+            <div id="premiumLocked">
+                <div class="status-pill checking" id="statusPill">CHECKING STATUS...</div>
+                <p class="desc">This device is not premium yet. Reveal your Device ID below and send it to the admin to request premium access.</p>
+
+                <div class="uid-row">
+                    <button class="btn-icon-info" onclick="toggleUidBox()">!</button>
+                    <span class="uid-hint">Tap to reveal your Device ID</span>
+                </div>
+
+                <div class="uid-box" id="uidBox" style="display:none;">
+                    <div class="uid-value" id="uidValue">-</div>
+                    <button class="btn-copy" onclick="copyUid()">COPY DEVICE ID</button>
+                </div>
+            </div>
+
+            <div id="premiumUnlocked" style="display:none;">
+                <p class="desc">This device is premium. Enjoy your options below.</p>
+                <div class="dev-options active">
+                    <button class="btn-dev-option" onclick="devUnlockAllTasks()">Force Unlock All Tasks</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const EXPIRE_HOURS = 7;
+        const EXPIRE_TIME_MS = EXPIRE_HOURS * 60 * 60 * 1000;
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDPm2MG5omvchIMKmPgschmSSwZ_msvSPg",
+            authDomain: "key-web-61727.firebaseapp.com",
+            databaseURL: "https://key-web-61727-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "key-web-61727",
+            storageBucket: "key-web-61727.firebasestorage.app",
+            messagingSenderId: "158991751626",
+            appId: "1:158991751626:web:605f214e6b5482ca855733"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        let normalKeyInterval = null;
+
+        // Check key status on page load
+        window.onload = function() {
+            checkExistingKey();
+            initDeviceUid();
+        };
+
+        function checkExistingKey() {
+            const savedKey = localStorage.getItem('michel_key');
+            const savedTime = localStorage.getItem('michel_key_time');
+
+            if (savedKey && savedTime) {
+                const now = new Date().getTime();
+                const elapsedTime = now - parseInt(savedTime);
+
+                if (elapsedTime < EXPIRE_TIME_MS) {
+                    showActiveKey(savedKey, EXPIRE_TIME_MS - elapsedTime);
+                } else {
+                    localStorage.removeItem('michel_key');
+                    localStorage.removeItem('michel_key_time');
+                }
+            }
+        }
+
+        function startTask(taskNum, seconds) {
+            const btn = document.getElementById(`task${taskNum}`);
+            const badge = document.getElementById(`badge${taskNum}`);
+
+            btn.disabled = true;
+            let timeLeft = seconds;
+            badge.innerText = `${timeLeft}s`;
+
+            const timer = setInterval(() => {
+                timeLeft--;
+                badge.innerText = `${timeLeft}s`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    badge.innerText = "DONE ✓";
+                    btn.classList.add("completed");
+
+                    if (taskNum < 4) {
+                        const nextBtn = document.getElementById(`task${taskNum + 1}`);
+                        const nextBadge = document.getElementById(`badge${taskNum + 1}`);
+                        nextBtn.disabled = false;
+                        nextBadge.innerText = "CLICK";
+                    } else {
+                        const genBtn = document.getElementById("genBtn");
+                        genBtn.disabled = false;
+                        genBtn.innerText = "GET KEY NOW";
+                    }
+                }
+            }, 1000);
+        }
+
+        function generateKey() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let randomKey = 'MICHEL-';
+            for (let i = 0; i < 8; i++) {
+                randomKey += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+
+            const now = new Date().getTime();
+            localStorage.setItem('michel_key', randomKey);
+            localStorage.setItem('michel_key_time', now);
+
+            showActiveKey(randomKey, EXPIRE_TIME_MS);
+        }
+
+        function showActiveKey(key, remainingTime) {
+            document.getElementById('taskList').style.display = 'none';
+            document.getElementById('genBtn').style.display = 'none';
+            document.getElementById('subTitle').innerText = 'Your Key is Active!';
+
+            document.getElementById('keyText').innerText = key;
+            document.getElementById('keyBox').style.display = 'block';
+
+            startExpiryCountdown(remainingTime);
+        }
+
+        function startExpiryCountdown(duration) {
+            let timerMs = duration;
+            const timerDisplay = document.getElementById('expiryTimer');
+
+            function updateDisplay() {
+                if (timerMs <= 0) {
+                    location.reload();
+                    return;
+                }
+
+                const totalSeconds = Math.floor(timerMs / 1000);
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+
+                timerDisplay.innerText = `Key resets in: ${hours}h ${minutes}m ${seconds}s`;
+                timerMs -= 1000;
+            }
+
+            updateDisplay();
+            normalKeyInterval = setInterval(updateDisplay, 1000);
+        }
+
+        function copyKey() {
+            const keyText = document.getElementById('keyText').innerText;
+            navigator.clipboard.writeText(keyText).then(() => {
+                const copyBtn = document.getElementById('copyBtn');
+                copyBtn.innerText = 'COPIED!';
+                setTimeout(() => {
+                    copyBtn.innerText = 'COPY KEY';
+                }, 2000);
+            });
+        }
+
+        function switchTab(tab) {
+            document.getElementById('panelKey').classList.toggle('active', tab === 'key');
+            document.getElementById('panelScript').classList.toggle('active', tab === 'script');
+            document.getElementById('panelDev').classList.toggle('active', tab === 'dev');
+            document.getElementById('tabKeyBtn').classList.toggle('active', tab === 'key');
+            document.getElementById('tabScriptBtn').classList.toggle('active', tab === 'script');
+            document.getElementById('tabDevBtn').classList.toggle('active', tab === 'dev');
+        }
+
+        function copyScript() {
+            const scriptText = document.getElementById('scriptText').innerText;
+            navigator.clipboard.writeText(scriptText).then(() => {
+                const copyBtn = document.getElementById('copyScriptBtn');
+                copyBtn.innerText = 'COPIED!';
+                setTimeout(() => {
+                    copyBtn.innerText = 'COPY SCRIPT';
+                }, 2000);
+            });
+        }
+
+        function devUnlockAllTasks() {
+            for (let i = 1; i <= 4; i++) {
+                const btn = document.getElementById(`task${i}`);
+                const badge = document.getElementById(`badge${i}`);
+                btn.disabled = true;
+                btn.classList.add('completed');
+                badge.innerText = 'DONE ✓';
+            }
+            const genBtn = document.getElementById('genBtn');
+            genBtn.disabled = false;
+            genBtn.innerText = 'GET KEY NOW';
+        }
+
+        // ---- Device UID + Premium approval (Firebase-backed) ----
+
+        function generateUuid() {
+            if (crypto.randomUUID) return crypto.randomUUID();
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+                const r = (Math.random() * 16) | 0;
+                const v = c === 'x' ? r : (r & 0x3) | 0x8;
+                return v.toString(16);
+            });
+        }
+
+        function getDeviceUid() {
+            let uid = localStorage.getItem('device_uid');
+            if (!uid) {
+                uid = generateUuid();
+                localStorage.setItem('device_uid', uid);
+            }
+            return uid;
+        }
+
+        function initDeviceUid() {
+            const uid = getDeviceUid();
+            document.getElementById('uidValue').innerText = uid;
+
+            // Live listener: auto unlocks/locks premium if admin approves/revokes the UID
+            db.ref('approvedUIDs/' + uid).on('value', (snapshot) => {
+                const pill = document.getElementById('statusPill');
+                const isPremium = snapshot.exists();
+
+                if (isPremium) {
+                    document.getElementById('premiumLocked').style.display = 'none';
+                    document.getElementById('premiumUnlocked').style.display = 'block';
+                    activateLifetimeKey(uid);
+                } else {
+                    document.getElementById('premiumLocked').style.display = 'block';
+                    document.getElementById('premiumUnlocked').style.display = 'none';
+                    pill.innerText = 'NOT PREMIUM';
+                    pill.classList.remove('checking');
+                }
+            });
+        }
+
+        function generateLifetimeKeyString() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let key = 'MICHEL-LIFETIME-';
+            for (let i = 0; i < 8; i++) {
+                key += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return key;
+        }
+
+        function activateLifetimeKey(uid) {
+            // Stop the normal 7-hour countdown/reload cycle — lifetime users skip it entirely
+            if (normalKeyInterval) {
+                clearInterval(normalKeyInterval);
+                normalKeyInterval = null;
+            }
+
+            const lifetimeRef = db.ref('lifetimeKeys/' + uid);
+            lifetimeRef.once('value').then((snapshot) => {
+                let key = snapshot.val();
+
+                if (!key) {
+                    key = generateLifetimeKeyString();
+                    lifetimeRef.set(key);
+                }
+
+                document.getElementById('taskList').style.display = 'none';
+                document.getElementById('genBtn').style.display = 'none';
+                document.getElementById('subTitle').innerText = 'You have Lifetime Premium!';
+                document.getElementById('keyText').innerText = key;
+                document.getElementById('keyBox').style.display = 'block';
+                document.getElementById('expiryTimer').innerText = 'LIFETIME KEY — never expires, locked to this device';
+            });
+        }
+
+        function toggleUidBox() {
+            const box = document.getElementById('uidBox');
+            box.style.display = box.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function copyUid() {
+            const uid = document.getElementById('uidValue').innerText;
+            navigator.clipboard.writeText(uid).then(() => {
+                event.target.innerText = 'COPIED!';
+                setTimeout(() => {
+                    event.target.innerText = 'COPY DEVICE ID';
+                }, 2000);
+            });
+        }
+    </script>
+
+</body>
+</html>
